@@ -1,0 +1,5 @@
+requests
+playwright
+playwright_stealth
+pyfzf
+tmdbsimple

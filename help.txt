@@ -1,0 +1,20 @@
+
+  Usage: movy [media_type] [search_query] [options]
+
+  Media Types:
+    tv                        Search for series
+    mv, movie                 Search for movies
+
+  Options:
+    -h, --help                Print this file and exit
+    -s, --season NUMBER       Select season number
+    -e, --episode NUMBER      Select episode number
+    -d, --download            Download instead of playing
+    --detach                  Do not detach from terminal session
+    --no-subs                 Do not download/play with subtitles
+
+  Examples:
+    movy tv FROM -s 2 -e 5
+    movy tv Breaking Bad -s 3 -d
+    movy mv Your Name --download
+    movy movie Smile 2 -d --no-subs
