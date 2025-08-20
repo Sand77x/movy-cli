@@ -38,11 +38,12 @@ Replace api_key with tmdb api key
 git clone https://github.com/Sand77x/movy-cli.git
 cd movy-cli
 python -m venv venv
-.\venv\Script\activate
+.\venv\Scripts\activate
 pip install -r requirements.txt
-echo 'TMDB_API=api_key' > .env
+"TMDB_API=api_key" | Out-File -FilePath .env -Encoding ascii
 ```
 ## Dependencies
+- [python3](https://www.python.org/downloads/)
 - [fzf](https://github.com/junegunn/fzf)
 - [mpv](https://mpv.io/)
 - Chrome / Firefox / Edge (if error, run `playwright install chromium`)
