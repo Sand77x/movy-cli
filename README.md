@@ -24,7 +24,7 @@ cd movy-cli
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-echo 'TMDB_API=api_key' > .env
+echo 'TMDB_API=api_key' > API_KEY
 ```
 ## Make Executable
 Replace /path/to/movy-cli with location of source 
@@ -40,7 +40,7 @@ cd movy-cli
 python -m venv venv
 .\venv\Scripts\activate
 pip install -r requirements.txt
-"TMDB_API=api_key" | Out-File -FilePath .env -Encoding ascii
+"TMDB_API=api_key" | Out-File -FilePath API_KEY -Encoding ascii
 ```
 ## Dependencies
 - [python3](https://www.python.org/downloads/)

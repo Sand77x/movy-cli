@@ -5,13 +5,13 @@ import threading
 import asyncio
 import shutil
 import tempfile
+from pathlib import Path
 
 from playwright.async_api import BrowserType, async_playwright
 from playwright_stealth import Stealth
 
 from parse import parse
 from colors import *
-
 
 async def main():
     if not shutil.which("fzf"):
@@ -26,8 +26,10 @@ async def main():
 
     args = parse(sys.argv[1:])
 
+    MOVY_DIR = Path(__file__).parent
+
     if not args or "help" in args:
-        with open('help.txt', 'r') as f:
+        with open(f'{MOVY_DIR}/help.txt', 'r') as f:
             print(f.read())
         return
 
