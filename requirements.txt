@@ -1,3 +1,4 @@
+dotenv
 requests
 playwright
 playwright_stealth

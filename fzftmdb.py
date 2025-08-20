@@ -1,13 +1,17 @@
+import os
 import asyncio
+
 from concurrent.futures import ThreadPoolExecutor
 
 from pyfzf.pyfzf import FzfPrompt
 import tmdbsimple as tmdb
 
+from dotenv import load_dotenv
+load_dotenv()
+
 fzf = FzfPrompt()
 
-with open('API_KEY') as f:
-    tmdb.API_KEY = f.read().rstrip("\n")
+tmdb.API_KEY = os.getenv("TMDB_API")
 
 executor = ThreadPoolExecutor()
 

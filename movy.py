@@ -6,7 +6,7 @@ import asyncio
 import shutil
 import tempfile
 
-from playwright.async_api import async_playwright
+from playwright.async_api import BrowserType, async_playwright
 from playwright_stealth import Stealth
 
 from parse import parse
@@ -64,7 +64,7 @@ async def main():
 
         # url = f"https://hexa.watch/watch/tv/{id}/{s}/{e}"
         url = f"https://fmovies.gd/watch/movie/{id}"
-        subs_r = requests.get(f"https://sub.wyzie.ru/search?id={id}&format=srt&language=en", timeout=4)
+        subs_url = f"https://sub.wyzie.ru/search?id={id}&format=srt&language=en"
     elif MEDIA_TYPE == "tv":
         if QUERY:
             chosen = await search_tv(QUERY, SEASON, EPISODE)
@@ -82,13 +82,14 @@ async def main():
         id = res['id']
         # url = f"https://hexa.watch/watch/tv/{id}/{s}/{e}"
         url = f"https://fmovies.gd/watch/tv/{id}/{s}/{e}"
-        subs_r = requests.get(f"https://sub.wyzie.ru/search?id={id}&format=srt&season={s}&episode={e}&language=en", timeout=4)
+        subs_url = f"https://sub.wyzie.ru/search?id={id}&format=srt&season={s}&episode={e}&language=en"
     else:
         print(RED("Invalid media type:"), "only [mv|movie|tv] are allowed")
         return
 
     if SUBS:
         try:
+            subs_r = requests.get(subs_url, timeout=5)
             rj = subs_r.json()
             cnt = 0
             for i in rj:
@@ -97,12 +98,38 @@ async def main():
                 found_subs.append(i["url"])
                 cnt += 1
             print(YELLOW("• Found subs:"), cnt)
-        except TypeError:
+        except:
             print(YELLOW("• No subs found."))
 
 
     async with Stealth().use_async(async_playwright()) as p:
-        browser = await p.chromium.launch(headless=True)
+        browsers = [
+            (p.chromium, "chrome"),
+            (p.chromium, "msedge"),
+            (p.firefox, "firefox"),
+            (p.chromium, None),
+            (p.firefox, None),
+            (p.webkit, None),
+        ]
+
+        browser = None
+
+        async def get_browser(browser: tuple[BrowserType, str]):
+            b, c = browser
+            try:
+                return await b.launch(channel=c, headless=True)
+            except:
+                return None
+
+        for b in browsers:
+            browser = await get_browser(b)
+            if browser:
+                break
+
+        if not browser:
+            print(RED("Error:"), "No installed browser found. Type `playwright install chromium` to install chromium.")
+            return
+
         context = await browser.new_context()
         page = await context.new_page()
 
@@ -132,6 +159,7 @@ async def main():
             if DOWNLOAD:
                 if not shutil.which("yt-dlp"):
                     print(RED("Error:"), "yt-dlp not found in PATH.")
+                    return
 
                 try:
                     tempdir = tempfile.mkdtemp()
@@ -170,12 +198,15 @@ async def main():
                         print(YELLOW("• Downloading subs.."))
 
                         for i, s in enumerate(found_subs):
-                            r = requests.get(s, timeout=4)
-                            if r.status_code != 200:
-                                continue
-                            dl_cnt += 1
-                            with open(f"{tempdir}/subs_{i}.srt", "wb") as f:
-                                f.write(r.content)
+                            try:
+                                r = requests.get(s, timeout=4)
+                                if r.status_code != 200:
+                                    continue
+                                dl_cnt += 1
+                                with open(f"{tempdir}/subs_{i}.srt", "wb") as f:
+                                    f.write(r.content)
+                            except:
+                                pass
 
                         # attach subs
                         print(YELLOW("• Attaching subs to video.."))
